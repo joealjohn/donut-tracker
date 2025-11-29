@@ -2,7 +2,7 @@
 // IMPORTANT: Set your API key in Vercel Environment Variables as DONUT_API_KEY
 
 const API_BASE = 'https://api.donutsmp.net/v1';
-const API_KEY = process.env.DONUT_API_KEY || 'bbcc8b4cc6654f35bd0fc3a1878658cc';
+const API_KEY = process.env.DONUT_API_KEY;
 const REQUEST_TIMEOUT = 30000; // 30 seconds in ms
 
 /**
