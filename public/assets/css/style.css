@@ -8060,6 +8060,10 @@ body.light-mode .page-hero-bg {
 
 .home-hero h1 {
     font-size: 3rem;
+    background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .home-hero-buttons {

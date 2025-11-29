@@ -2829,8 +2829,35 @@ async function initServerStatsPage() {
     await Promise.all([
         fetchMinecraftServerStatus(),
         calculateAggregateStatsParallel(),
-        loadAuctionCount()
+        loadAuctionCount(),
+        fetchDiscordStatsForServerPage()
     ]);
+}
+
+/**
+ * Fetch Discord stats for server-stats page community section
+ */
+async function fetchDiscordStatsForServerPage() {
+    const membersEl = document.getElementById('discord-members');
+    const onlineEl = document.getElementById('discord-online');
+    
+    if (!membersEl && !onlineEl) return;
+    
+    try {
+        const response = await fetch('https://discord.com/api/v9/invites/donutsmp?with_counts=true');
+        const data = await response.json();
+        
+        if (data.approximate_member_count && membersEl) {
+            membersEl.textContent = data.approximate_member_count.toLocaleString();
+        }
+        if (data.approximate_presence_count && onlineEl) {
+            onlineEl.textContent = data.approximate_presence_count.toLocaleString();
+        }
+    } catch (error) {
+        console.error('Error fetching Discord stats:', error);
+        if (membersEl) membersEl.textContent = '50,000+';
+        if (onlineEl) onlineEl.textContent = '1,000+';
+    }
 }
 
 /**
