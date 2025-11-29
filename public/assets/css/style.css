@@ -7391,7 +7391,12 @@ p {
 }
 
 [data-theme="light"] .floating-item {
-    opacity: 0.7;
+    opacity: 1;
+    filter: drop-shadow(0 0 20px rgba(37, 99, 235, 0.4)) drop-shadow(0 0 40px rgba(59, 130, 246, 0.3));
+}
+
+[data-theme="light"] .floating-item.glow {
+    filter: drop-shadow(0 0 25px rgba(37, 99, 235, 0.5)) drop-shadow(0 0 50px rgba(59, 130, 246, 0.4));
 }
 
 /* ============================================
@@ -7666,11 +7671,7 @@ select,
     will-change: transform;
 }
 
-/* Light mode */
-body.light-mode .floating-item {
-    opacity: 0.18;
-    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.15));
-}
+/* Light mode - handled by [data-theme="light"] selector above */
 
 /* Pulse glow effect for special items */
 .floating-item.glow {
@@ -7975,16 +7976,16 @@ body.light-mode .floating-item {
 }
 
 /* Light mode for stats hero */
-body.light-mode .stats-hero-bg {
+[data-theme="light"] .stats-hero-bg {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(6, 182, 212, 0.08) 100%);
 }
 
-body.light-mode .stats-search-form {
+[data-theme="light"] .stats-search-form {
     background: var(--bg-card);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
 }
 
-body.light-mode .stats-feature-card {
+[data-theme="light"] .stats-feature-card {
     background: var(--bg-card);
 }
 
@@ -8094,7 +8095,7 @@ body.light-mode .stats-feature-card {
 }
 
 /* Light mode for page hero */
-body.light-mode .page-hero-bg {
+[data-theme="light"] .page-hero-bg {
     background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.08) 50%, rgba(6, 182, 212, 0.08) 100%);
 }
 
@@ -8266,11 +8267,12 @@ body.light-mode .page-hero-bg {
 }
 
 /* Light mode for home hero */
-body.light-mode .home-stat-card {
-    background: rgba(0, 0, 0, 0.02);
-    border-color: rgba(0, 0, 0, 0.08);
+[data-theme="light"] .home-stat-card {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(59, 130, 246, 0.2);
 }
 
-body.light-mode .home-stat-card:hover {
-    background: rgba(0, 0, 0, 0.04);
+[data-theme="light"] .home-stat-card:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(59, 130, 246, 0.4);
 }
