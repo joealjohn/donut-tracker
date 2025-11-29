@@ -1,8 +1,8 @@
-﻿#  Donut Tracker
+#  Donut Central
 
 A modern stats tracking platform for **DonutSMP** players.
 
-![Donut Tracker](https://img.shields.io/badge/Donut-Tracker-blue?style=for-the-badge)
+![Donut Central](https://img.shields.io/badge/Donut-Tracker-blue?style=for-the-badge)
 ![Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)
 
 ##  Features
