@@ -3722,3 +3722,238 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// ============================================
+// Floating Items Animation (JS-controlled)
+// ============================================
+
+/**
+ * Initialize floating background items with random movement
+ */
+function initFloatingItems() {
+    const container = document.querySelector('.floating-items-container');
+    if (!container) return;
+    
+    const items = container.querySelectorAll('.floating-item');
+    if (items.length === 0) return;
+    
+    // Bigger item sizes (12 items now)
+    const sizes = [120, 100, 130, 95, 110, 90, 140, 105, 115, 125, 108, 98];
+    
+    // Starting positions OFF-SCREEN from all 4 sides, flowing inward
+    // Each item starts outside the viewport and moves toward the center
+    const startPositions = [
+        { x: -150, y: 0.2, side: 'left' },      // From left
+        { x: 1.1, y: 0.3, side: 'right' },      // From right  
+        { x: 0.3, y: -150, side: 'top' },       // From top
+        { x: 0.7, y: 1.1, side: 'bottom' },     // From bottom
+        { x: -150, y: 0.6, side: 'left' },      // From left
+        { x: 1.1, y: 0.7, side: 'right' },      // From right
+        { x: 0.5, y: -150, side: 'top' },       // From top
+        { x: 0.4, y: 1.1, side: 'bottom' },     // From bottom
+        { x: -150, y: 0.4, side: 'left' },      // From left
+        { x: 1.1, y: 0.5, side: 'right' },      // From right (mace)
+        { x: 0.6, y: -150, side: 'top' },       // From top (elytra)
+        { x: 0.2, y: 1.1, side: 'bottom' }      // From bottom (potion)
+    ];
+    
+    // Directions pointing INWARD based on which side they start from
+    const directions = [
+        { vx: 0.20, vy: 0.05 },    // From left -> right
+        { vx: -0.20, vy: 0.03 },   // From right -> left
+        { vx: 0.03, vy: 0.20 },    // From top -> down
+        { vx: -0.02, vy: -0.20 },  // From bottom -> up
+        { vx: 0.18, vy: -0.06 },   // From left -> right-up
+        { vx: -0.17, vy: -0.08 }, // From right -> left-up
+        { vx: -0.05, vy: 0.18 },   // From top -> down-left
+        { vx: 0.06, vy: -0.17 },   // From bottom -> up-right
+        { vx: 0.19, vy: 0.08 },    // From left -> right-down
+        { vx: -0.16, vy: 0.10 },   // From right -> left-down (mace)
+        { vx: 0.08, vy: 0.19 },    // From top -> down-right (elytra)
+        { vx: -0.07, vy: -0.18 }   // From bottom -> up-left (potion)
+    ];
+    
+    // Initialize each item starting OFF-SCREEN
+    items.forEach((item, index) => {
+        // Set size
+        item.style.width = (sizes[index] || 100) + 'px';
+        
+        // Calculate starting position (off-screen)
+        const startPos = startPositions[index] || startPositions[0];
+        let startX, startY;
+        
+        if (startPos.side === 'left') {
+            startX = -150; // Off left edge
+            startY = startPos.y * window.innerHeight;
+        } else if (startPos.side === 'right') {
+            startX = window.innerWidth + 50; // Off right edge
+            startY = startPos.y * window.innerHeight;
+        } else if (startPos.side === 'top') {
+            startX = startPos.x * window.innerWidth;
+            startY = -150; // Off top edge
+        } else { // bottom
+            startX = startPos.x * window.innerWidth;
+            startY = window.innerHeight + 50; // Off bottom edge
+        }
+        
+        // Use preset directions (pointing inward)
+        const dir = directions[index] || directions[0];
+        
+        // First item gets zoom in/out effect (like moving towards/away)
+        const isZoomItem = index === 0;
+        
+        // Store animation data on the element
+        item.floatData = {
+            x: startX,
+            y: startY,
+            rotation: Math.random() * 360,
+            // Speed 0.20, flowing inward from edges
+            vx: dir.vx,
+            vy: dir.vy,
+            vr: (Math.random() > 0.5 ? 1 : -1) * 0.15, // slower rotation speed
+            // Zoom effect for first item, subtle for others
+            scale: isZoomItem ? 1 : 1,
+            scaleDir: 1,
+            scaleSpeed: isZoomItem ? 0.003 : 0.0005, // much bigger zoom for first item
+            isZoomItem: isZoomItem,
+            scaleMin: isZoomItem ? 0.4 : 0.94, // zooms out far
+            scaleMax: isZoomItem ? 1.5 : 1.08  // zooms in close
+        };
+        
+        // Apply initial position (off-screen)
+        item.style.left = startX + 'px';
+        item.style.top = startY + 'px';
+        item.style.transform = `rotate(${item.floatData.rotation}deg)`;
+    });
+    
+    // Start animation loop
+    animateFloatingItems(items);
+}
+
+/**
+ * Animation loop for floating items - SMOOTH floating
+ */
+function animateFloatingItems(items) {
+    const itemsArray = Array.from(items);
+    
+    function animate() {
+        // Update positions
+        itemsArray.forEach(item => {
+            const data = item.floatData;
+            if (!data) return;
+            
+            // Smooth position update
+            data.x += data.vx;
+            data.y += data.vy;
+            data.rotation += data.vr;
+            
+            // Zoom effect - first item zooms in/out dramatically
+            data.scale += data.scaleSpeed * data.scaleDir;
+            if (data.scale > data.scaleMax) {
+                data.scaleDir = -1;
+            } else if (data.scale < data.scaleMin) {
+                data.scaleDir = 1;
+            }
+            
+            // PORTAL EFFECT: When item goes off one side, appear on opposite side
+            const itemSize = 150;
+            if (data.x < -itemSize) {
+                data.x = window.innerWidth + 10; // Appear from right
+            } else if (data.x > window.innerWidth + itemSize) {
+                data.x = -10; // Appear from left
+            }
+            
+            if (data.y < -itemSize) {
+                data.y = window.innerHeight + 10; // Appear from bottom
+            } else if (data.y > window.innerHeight + itemSize) {
+                data.y = -10; // Appear from top
+            }
+            
+            // Gentle random direction changes
+            if (Math.random() < 0.001) {
+                data.vx += (Math.random() - 0.5) * 0.05;
+                data.vy += (Math.random() - 0.5) * 0.05;
+            }
+            
+            // Limit velocity - max speed 0.25
+            const maxSpeed = 0.25;
+            const speed = Math.sqrt(data.vx * data.vx + data.vy * data.vy);
+            if (speed > maxSpeed) {
+                data.vx = (data.vx / speed) * maxSpeed;
+                data.vy = (data.vy / speed) * maxSpeed;
+            }
+            
+            // Keep minimum speed 0.15
+            const minSpeed = 0.15;
+            if (speed < minSpeed && speed > 0) {
+                data.vx = (data.vx / speed) * minSpeed;
+                data.vy = (data.vy / speed) * minSpeed;
+            } else if (speed === 0) {
+                data.vx = (Math.random() - 0.5) * 0.2;
+                data.vy = (Math.random() - 0.5) * 0.2;
+            }
+            
+            // Apply transform smoothly
+            item.style.left = data.x + 'px';
+            item.style.top = data.y + 'px';
+            item.style.transform = `rotate(${data.rotation}deg) scale(${data.scale})`;
+        });
+        
+        // COLLISION DETECTION: Items bounce off each other
+        for (let i = 0; i < itemsArray.length; i++) {
+            for (let j = i + 1; j < itemsArray.length; j++) {
+                const item1 = itemsArray[i];
+                const item2 = itemsArray[j];
+                const data1 = item1.floatData;
+                const data2 = item2.floatData;
+                
+                if (!data1 || !data2) continue;
+                
+                // Calculate distance between items
+                const dx = data2.x - data1.x;
+                const dy = data2.y - data1.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Collision radius (items are about 100-140px wide)
+                const collisionRadius = 80;
+                
+                if (distance < collisionRadius && distance > 0) {
+                    // Normalize the collision vector
+                    const nx = dx / distance;
+                    const ny = dy / distance;
+                    
+                    // Swap velocities along collision axis (simple elastic collision)
+                    const dvx = data1.vx - data2.vx;
+                    const dvy = data1.vy - data2.vy;
+                    const dvn = dvx * nx + dvy * ny;
+                    
+                    // Only bounce if items are moving toward each other
+                    if (dvn > 0) {
+                        data1.vx -= dvn * nx;
+                        data1.vy -= dvn * ny;
+                        data2.vx += dvn * nx;
+                        data2.vy += dvn * ny;
+                        
+                        // Separate items to prevent sticking
+                        const overlap = collisionRadius - distance;
+                        data1.x -= overlap * nx * 0.5;
+                        data1.y -= overlap * ny * 0.5;
+                        data2.x += overlap * nx * 0.5;
+                        data2.y += overlap * ny * 0.5;
+                    }
+                }
+            }
+        }
+        
+        requestAnimationFrame(animate);
+    }
+    
+    requestAnimationFrame(animate);
+}
+
+// Initialize floating items when DOM is ready
+document.addEventListener('DOMContentLoaded', initFloatingItems);
+// Also init on window load in case DOMContentLoaded already fired
+if (document.readyState === 'complete') {
+    initFloatingItems();
+}

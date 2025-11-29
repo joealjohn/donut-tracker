@@ -7579,3 +7579,59 @@ select,
                 border-color 0.3s ease, 
                 color 0.3s ease;
 }
+
+/* ============================================
+   Floating Background Items Animation (JS-controlled)
+   ============================================ */
+.floating-items-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.floating-item {
+    position: absolute;
+    opacity: 0.25;
+    filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.3));
+    transition: none;
+    will-change: transform;
+}
+
+/* Light mode */
+body.light-mode .floating-item {
+    opacity: 0.18;
+    filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.15));
+}
+
+/* Pulse glow effect for special items */
+.floating-item.glow {
+    animation: floatItem 20s infinite ease-in-out, pulseGlow 3s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+    }
+    50% {
+        filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.4));
+    }
+}
+
+/* Hide on very small screens for performance */
+@media (max-width: 480px) {
+    .floating-items-container {
+        display: none;
+    }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .floating-item {
+        animation: none;
+    }
+}
