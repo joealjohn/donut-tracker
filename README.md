@@ -46,10 +46,6 @@ A modern stats tracking platform for **DonutSMP** players.
    - Click the three dots on the latest deployment → **Redeploy**
    - Your site is now live! 🎉
 
-### Updating
-
-Your site will automatically update when you push changes to GitHub, or when you click "Redeploy" in Vercel.
-
 ## 📁 Project Structure
 
 ```
