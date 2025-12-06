@@ -11,7 +11,7 @@
 // API base path - works for both local dev and Vercel
 const API_BASE = '/api';
 const MINECRAFT_HEAD_API = 'https://mc-heads.net/avatar';
-const MINECRAFT_ITEMS_API = 'https://minecraftallimages.jemsire.com/images'; // Supports all MC versions including 1.20+
+const MINECRAFT_ITEMS_API = 'https://minecraft-api.vercel.app/images/items'; // Fallback for items not in library
 const ITEMS_PER_PAGE = 45;
 const ITEMS_PER_PAGE_OFFSET = 44; // API has 1 item overlap between pages
 
@@ -414,9 +414,8 @@ function calculatePriceTrend(data) {
 // ============================================
 
 /**
- * Get Minecraft item image URL from minecraftallimages.jemsire.com
- * This API supports all Minecraft versions including 1.20+ items
- * Falls back to minecraft-icon-items library for older items
+ * Get Minecraft item image URL
+ * Uses minecraft-icon-items library first (base64 embedded), falls back to external API
  * @param {string} itemId - The item ID (with or without minecraft: prefix)
  * @returns {string} The image URL or data URL
  */
@@ -426,8 +425,37 @@ function getItemImageUrl(itemId) {
     // Remove minecraft: prefix if present and clean up
     let cleanId = itemId.replace(/^minecraft:/i, '').toLowerCase();
     
-    // Primary: Use minecraftallimages.jemsire.com API (supports 1.20+ items)
-    // This API has 1400+ items including all modern Minecraft items
+    // Try to get item from minecraft-icon-items library (uses Bukkit enum format)
+    if (typeof minecraftItems !== 'undefined') {
+        // Convert minecraft id format to Bukkit enum format (e.g., "diamond_sword" -> "DIAMOND_SWORD")
+        const bukkitName = cleanId.toUpperCase();
+        
+        // Try getBukkit first (most reliable for modern items)
+        let item = minecraftItems.getBukkit(bukkitName);
+        
+        // If not found, try by name (case insensitive)
+        if (!item) {
+            const itemName = cleanId.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+            item = minecraftItems.get(itemName);
+        }
+        
+        // If still not found, try find for partial matches
+        if (!item) {
+            const results = minecraftItems.find(cleanId.replace(/_/g, ' '));
+            if (results && results.length > 0) {
+                item = results[0];
+            }
+        }
+        
+        // If we found an item with an icon, return as data URL
+        if (item && item.icon) {
+            return `data:image/png;base64,${item.icon}`;
+        }
+    }
+    
+    // Fallback to external API (works for items not in the library)
     return `${MINECRAFT_ITEMS_API}/${cleanId}.png`;
 }
 
